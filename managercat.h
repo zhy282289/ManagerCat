@@ -4,7 +4,7 @@
 #include <QtWidgets/QWidget>
 #include "ui_managercat.h"
 
-class PropertyWidget;
+class MainPropertyWidget;
 class ManagerCat : public QWidget
 {
 	Q_OBJECT
@@ -15,10 +15,17 @@ public:
 
 protected:
 	void resizeEvent(QResizeEvent *event);
+	void closeEvent(QCloseEvent *event);
 
 private:
-	PropertyWidget *m_propertyWidget;
+	void saveDisplay();
+private:
+	MainPropertyWidget *m_propertyWidget;
+	QScrollArea *m_propertyWidgetArea;
 
+	QTextEdit *m_display;
+
+	QSplitter *m_splitter;
 };
 
 #endif // MANAGERCAT_H
