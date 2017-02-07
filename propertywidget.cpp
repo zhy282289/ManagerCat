@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "propertywidget.h"
 
-
+ 
 //////////////////////////////////////////////////////////////////////////
 MainPropertyWidget::MainPropertyWidget(QWidget *parent)
 :QWidget(parent)
@@ -9,7 +9,16 @@ MainPropertyWidget::MainPropertyWidget(QWidget *parent)
 	m_btnAdd = new QPushButton(("Add"), this);
 	connect(m_btnAdd, &QPushButton::clicked, this, [&](){
 		auto widget = new BoyPropertyHead(this);
+
+
+		auto widgets = getPropertyWidgets();
+		if (!widgets.isEmpty())
+		{
+			auto data = widgets.last()->getPropertyWidget()->getData();
+			widget->getPropertyWidget()->setData(data);
+		}
 		m_mainLayout->insertWidget(qMax(0, m_mainLayout->count() - 1), widget);
+
 	});
 
 	m_btnCalculate = new QPushButton(("Calculate"), this);
@@ -140,6 +149,8 @@ PropertyWidget::PropertyWidget(QWidget *parent)
 	
 	m_leDifficultyRate = new BoyLineEdit("DifficultyRate", this);
 
+	m_leSellBlood = new BoyLineEdit("SellBlood", this);
+	m_leSellAttack = new BoyLineEdit("SellAttack", this);
 
 
 	initData();
@@ -155,9 +166,9 @@ PropertyWidget::PropertyWidget(QWidget *parent)
 	vlayout->addWidget(m_leMAttackRateTime);
 	vlayout->addWidget(m_leLevelCount);
 
-	vlayout->addWidget(m_leBaseGold);
 	vlayout->addWidget(m_leBaseAttack);
 	vlayout->addWidget(m_leBaseBlood);
+	vlayout->addWidget(m_leBaseGold);
 
 	vlayout->addWidget(m_leGoldRate);
 	vlayout->addWidget(m_leAttackRate);
@@ -168,6 +179,9 @@ PropertyWidget::PropertyWidget(QWidget *parent)
 	vlayout->addWidget(m_leBossGold);
 	vlayout->addWidget(m_leDifficultyRate);
 
+	vlayout->addWidget(m_leSellBlood);
+	vlayout->addWidget(m_leSellAttack);
+	
 	setLayout(vlayout);
 }
 
@@ -209,23 +223,26 @@ QString PropertyWidget::getInfo()
 		int time = m_leTotalTime->getInt(i);
 		int mouseCount = (m_leNormalMCountOneTime->getInt(i) * (time / (m_leMLiveTime->getFloat(i) + m_leMStandupTime->getFloat(i))));
 		int attackCount = m_leMLiveTime->getFloat(i) / m_leMAttackRateTime->getFloat(i) * mouseCount;
-		int preAttack = nextValue(level, m_leAttackRate->getFloat(i), m_leBaseAttack->getInt(i)); // (m_leBaseAttack->getFloat(i) + m_leBaseAttack->getFloat(i) * level * m_leAttackRate->getFloat(i));
+		int preAttack = nextValue(level, m_leAttackRate->getFloat(i), m_leBaseAttack->getInt(i));
+		//int preAttack = (m_leBaseAttack->getFloat(i) + m_leBaseAttack->getFloat(i) * level * m_leAttackRate->getFloat(i));
 		int attack = attackCount * preAttack;
-		int preGold = nextValue(level, m_leGoldRate->getFloat(i), m_leBaseGold->getInt(i));// (m_leBaseGold->getFloat(i) + m_leBaseGold->getFloat(i) * level * m_leGoldRate->getFloat(i));
+		int preGold = nextValue(level, m_leGoldRate->getFloat(i), m_leBaseGold->getInt(i));
+		//int preGold = (m_leBaseGold->getFloat(i) + m_leBaseGold->getFloat(i) * level * m_leGoldRate->getFloat(i));
 		int gold = mouseCount * preGold;
-		int preBlood = nextValue(level, m_leBloodRate->getFloat(i), m_leBaseBlood->getInt(i));// (m_leBaseBlood->getFloat(i) + m_leBaseBlood->getFloat(i) * level * m_leBloodRate->getFloat(i));
+		int preBlood = nextValue(level, m_leBloodRate->getFloat(i), m_leBaseBlood->getInt(i));
+		//int preBlood = (m_leBaseBlood->getFloat(i) + m_leBaseBlood->getFloat(i) * level * m_leBloodRate->getFloat(i));
 		int blood = mouseCount * preBlood;
-		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preGold:%4 preBlood:%5 \n MouseCount:%6 AttackCount:%7  TotalAttack:%8 TotalGold:%9 TotalBlood:%10 \n")
+		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n MouseCount:%6 AttackCount:%7  TotalAttack:%8 TotalBlood:%9 TotalGold:%10 \n")
 			.arg(level + 1)
 			.arg(time)
 			.arg(preAttack)
-			.arg(preGold)
 			.arg(preBlood)
+			.arg(preGold)
 			.arg(mouseCount)
 			.arg(attackCount)
 			.arg(attack)
-			.arg(gold)
 			.arg(blood)
+			.arg(gold)
 			;
 
 		totalInfo += baseInfo;
@@ -237,6 +254,13 @@ QString PropertyWidget::getInfo()
 		totalBlood += blood;
 		totalMouseCount += mouseCount;
 
+		QString catInfo = QString("cat total gold:%1 can get Blood:%2 get Attack:%3 \n")
+			.arg(totalGold)
+			.arg(totalGold / 2 / m_leSellBlood->getInt(0) * m_leSellBlood->getInt(1))
+			.arg(totalGold / 2 / m_leSellAttack->getInt(0) * m_leSellAttack->getInt(1))
+			;
+
+		totalInfo += catInfo;
 	}
 	
 	QString enterString("---------\n");
@@ -349,7 +373,8 @@ void PropertyWidget::initData()
 	m_leBossGold->setText("0");
 	m_leDifficultyRate->setText("0.4");
 
-
+	m_leSellBlood->setText("10000 100");
+	m_leSellAttack->setText("10000 100");
 }
 
 //////////////////////////////////////////////////////////////////////////

@@ -109,6 +109,8 @@ private:
 	BoyLineEdit *m_leDifficultyRate;
 
 
+	BoyLineEdit *m_leSellBlood;
+	BoyLineEdit *m_leSellAttack;
 
 };
 
