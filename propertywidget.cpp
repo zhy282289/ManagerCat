@@ -6,65 +6,8 @@
 MainPropertyWidget::MainPropertyWidget(QWidget *parent)
 :QWidget(parent)
 {
-	m_btnAdd = new QPushButton(("Add"), this);
-	connect(m_btnAdd, &QPushButton::clicked, this, [&](){
-		auto widget = new BoyPropertyHead(this);
-
-
-		auto widgets = getPropertyWidgets();
-		if (!widgets.isEmpty())
-		{
-			auto data = widgets.last()->getPropertyWidget()->getData();
-			widget->getPropertyWidget()->setData(data);
-		}
-		m_mainLayout->insertWidget(qMax(0, m_mainLayout->count() - 1), widget);
-
-	});
-
-	m_btnCalculate = new QPushButton(("Calculate"), this);
-	connect(m_btnCalculate, &QPushButton::clicked, this, [&](){
-
-		QString info;
-		auto widgets = getPropertyWidgets();
-		for (auto widget : widgets)
-		{
-			if (widget->needDisplayInfo())
-			{
-				info += widget->getPropertyWidget()->getInfo();
-			}
-		}
-
-		emit InfoSignal(info);
-
-	});
-
-	m_btnSave = new QPushButton(("Save"), this);
-	connect(m_btnSave, &QPushButton::clicked, this, [&](){
-		emit SaveSignal();
-	});
-
-
-	m_btnExport = new QPushButton(("Export"), this);
-	connect(m_btnExport, &QPushButton::clicked, this, [&](){
-		static QString dir;
-		QString path = QFileDialog::getSaveFileName(this, "export", dir, QString("txt(*.txt)"));
-		if (!path.isEmpty())
-		{
-			dir = path;
-			emit ExportSignal(path);
-		}
-	});
-
-	QHBoxLayout *hlayout = new QHBoxLayout;
-	hlayout->addWidget(m_btnAdd);
-	hlayout->addWidget(m_btnCalculate);
-	hlayout->addWidget(m_btnSave);
-	hlayout->addWidget(m_btnExport);
-	hlayout->addStretch();
-
 	m_mainLayout = new QVBoxLayout;
-	m_mainLayout->addLayout(hlayout);
-
+	//m_mainLayout->addLayout(hlayout);
 	m_mainLayout->addStretch(100);
 
 	setLayout(m_mainLayout);
@@ -97,6 +40,52 @@ void MainPropertyWidget::savePropertys()
 	}
 
 	SettingInit::getInstance()->savePropertys(datas);
+}
+
+void MainPropertyWidget::add()
+{
+	auto widget = new BoyPropertyHead(this);
+
+
+	auto widgets = getPropertyWidgets();
+	if (!widgets.isEmpty())
+	{
+		auto data = widgets.last()->getPropertyWidget()->getData();
+		widget->getPropertyWidget()->setData(data);
+	}
+	m_mainLayout->insertWidget(qMax(0, m_mainLayout->count() - 1), widget);
+}
+
+void MainPropertyWidget::calculate()
+{
+	QString info;
+	auto widgets = getPropertyWidgets();
+	for (auto widget : widgets)
+	{
+		if (widget->needDisplayInfo())
+		{
+			info += widget->getPropertyWidget()->getInfo();
+		}
+	}
+
+	emit InfoSignal(info);
+}
+
+void MainPropertyWidget::save()
+{
+	emit SaveSignal();
+
+}
+
+void MainPropertyWidget::exportFile()
+{
+	static QString dir;
+	QString path = QFileDialog::getSaveFileName(this, "export", dir, QString("txt(*.txt)"));
+	if (!path.isEmpty())
+	{
+		dir = path;
+		emit ExportSignal(path);
+	}
 }
 
 QList<BoyPropertyHead*> MainPropertyWidget::getPropertyWidgets()
@@ -605,4 +594,59 @@ void SettingInit::saveDesc(QString desc)
 	settings.beginGroup("desc");
 	settings.setValue("desc", desc);
 	settings.endGroup();
+}
+
+//////////////////////////////////////////////////////////////////////////
+MainPropertyWidgetArea::MainPropertyWidgetArea(QWidget *parent)
+:QWidget(parent)
+{
+	m_btnAdd = new QPushButton(("Add"), this);
+	connect(m_btnAdd, &QPushButton::clicked, this, [&](){
+		m_propertyWidget->add();
+	});
+
+	m_btnCalculate = new QPushButton(("Calculate"), this);
+	connect(m_btnCalculate, &QPushButton::clicked, this, [&](){
+		m_propertyWidget->calculate();
+	});
+
+	m_btnSave = new QPushButton(("Save"), this);
+	connect(m_btnSave, &QPushButton::clicked, this, [&](){
+		m_propertyWidget->save();
+	});
+
+
+	m_btnExport = new QPushButton(("Export"), this);
+	connect(m_btnExport, &QPushButton::clicked, this, [&](){
+		m_propertyWidget->exportFile();
+	});
+
+
+	m_propertyWidget = new MainPropertyWidget(this);
+	connect(m_propertyWidget, &MainPropertyWidget::InfoSignal, this, &MainPropertyWidgetArea::InfoSignal);
+	connect(m_propertyWidget, &MainPropertyWidget::SaveSignal, this, &MainPropertyWidgetArea::SaveSignal);
+	connect(m_propertyWidget, &MainPropertyWidget::ExportSignal, this, &MainPropertyWidgetArea::ExportSignal);
+
+	m_area = new QScrollArea(this);
+	m_area->setWidgetResizable(true);
+	m_area->setWidget(m_propertyWidget);
+
+	QHBoxLayout *hlayout = new QHBoxLayout;
+	hlayout->addWidget(m_btnAdd);
+	hlayout->addWidget(m_btnCalculate);
+	hlayout->addWidget(m_btnSave);
+	hlayout->addWidget(m_btnExport);
+	hlayout->addStretch();
+
+	QVBoxLayout *vlayout = new QVBoxLayout(this);
+	vlayout->addLayout(hlayout);
+	vlayout->addWidget(m_area);
+	
+	setLayout(vlayout);
+
+}
+
+MainPropertyWidget* MainPropertyWidgetArea::getPropertyWidget()
+{
+	return m_propertyWidget;
 }

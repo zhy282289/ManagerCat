@@ -2,6 +2,30 @@
 #define PROPERTYWIDGET_H
 
 
+class MainPropertyWidget;
+class MainPropertyWidgetArea : public QWidget
+{
+	Q_OBJECT
+
+public:
+	MainPropertyWidgetArea(QWidget *parent);
+
+	MainPropertyWidget* getPropertyWidget();
+Q_SIGNALS:
+	void InfoSignal(QString info);
+	void SaveSignal();
+	void ExportSignal(QString path);
+private:
+	MainPropertyWidget *m_propertyWidget;
+	QScrollArea *m_area;
+
+	QPushButton *m_btnAdd;
+	QPushButton *m_btnCalculate;
+	QPushButton *m_btnSave;
+	QPushButton *m_btnExport;
+};
+
+
 class BoyPropertyHead;
 class MainPropertyWidget : public QWidget
 {
@@ -13,6 +37,11 @@ public:
 
 	void savePropertys();
 
+	void add();
+	void calculate();
+	void save();
+	void exportFile();
+
 Q_SIGNALS:
 	void InfoSignal(QString info);
 	void SaveSignal();
@@ -21,15 +50,9 @@ private:
 	QList<BoyPropertyHead*> getPropertyWidgets();
 
 private:
-	QPushButton *m_btnAdd;
-	QPushButton *m_btnCalculate;
-	QPushButton *m_btnSave;
-	QPushButton *m_btnExport;
-
 	QVBoxLayout *m_mainLayout;
 
 };
-
 
 
 class PropertyData

@@ -5,6 +5,7 @@
 #include "ui_managercat.h"
 
 class MainPropertyWidget;
+class MainPropertyWidgetArea;
 class ManagerCat : public QWidget
 {
 	Q_OBJECT
@@ -20,8 +21,7 @@ protected:
 private:
 	void saveDisplay();
 private:
-	MainPropertyWidget *m_propertyWidget;
-	QScrollArea *m_propertyWidgetArea;
+	MainPropertyWidgetArea *m_propertyWidget;
 
 	QTextEdit *m_display;
 
