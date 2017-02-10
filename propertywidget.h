@@ -67,17 +67,19 @@ public:
 	int levelCount;
 
 	int baseGold;
+	int baseMouseGold;
 	int baseAttack;
 	int baseBlood;
 
 	float goldRate;
+	float mouseGoldRate;
 	float attackRate;
 	float bloodRate;
 
 	QString NormalMCountOneTime;
 	
-	int giftGold;
-	int bossGold;
+	int totalGold;
+	QString goldDistributeRate;
 	float DifficultyRate;
 };
 typedef QList<PropertyData> PropertyDatas;
@@ -113,10 +115,12 @@ private:
 	BoyLineEdit *m_leLevelCount;
 
 	BoyLineEdit *m_leBaseGold;
+	BoyLineEdit *m_leBaseMouseGold;
 	BoyLineEdit *m_leBaseAttack;
 	BoyLineEdit *m_leBaseBlood;
 
 	BoyLineEdit *m_leGoldRate;
+	BoyLineEdit *m_leMouseGoldRate;
 	BoyLineEdit *m_leAttackRate;
 	BoyLineEdit *m_leBloodRate;
 
@@ -124,8 +128,8 @@ private:
 	BoyLineEdit *m_leNormalMCountOneTime;
 
 	
-	BoyLineEdit *m_leGifGold;
-	BoyLineEdit *m_leBossGold;
+	BoyLineEdit *m_leTotalGold;
+	BoyLineEdit *m_leGoldDistributeRate;
 
 
 	// 所有参数上升rate
@@ -134,7 +138,6 @@ private:
 
 	BoyLineEdit *m_leSellBlood;
 	BoyLineEdit *m_leSellAttack;
-
 };
 
 

@@ -1,9 +1,4 @@
-﻿  Moc'ing propertywidget.h...
-C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(935,5): warning MSB8027: Two or more files with the name of moc_managercat.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are GeneratedFiles\Debug\moc_managercat.cpp, GeneratedFiles\Release\moc_managercat.cpp.
+﻿C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(935,5): warning MSB8027: Two or more files with the name of moc_managercat.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are GeneratedFiles\Debug\moc_managercat.cpp, GeneratedFiles\Release\moc_managercat.cpp.
 C:\Program Files (x86)\MSBuild\Microsoft.Cpp\v4.0\V120\Microsoft.CppBuild.targets(935,5): warning MSB8027: Two or more files with the name of moc_propertywidget.cpp will produce outputs to the same location. This can lead to an incorrect build result.  The files involved are GeneratedFiles\Debug\moc_propertywidget.cpp, GeneratedFiles\Release\moc_propertywidget.cpp.
-  moc_propertywidget.cpp
-  main.cpp
-  managercat.cpp
   propertywidget.cpp
-  正在生成代码...
   ManagerCat.vcxproj -> J:\works\ManagerCat\ManagerCat.exe

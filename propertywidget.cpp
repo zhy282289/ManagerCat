@@ -122,10 +122,12 @@ PropertyWidget::PropertyWidget(QWidget *parent)
 
 
 	m_leBaseGold = new BoyLineEdit("BaseGold", this);
+	m_leBaseMouseGold = new BoyLineEdit("BaseMouseGold", this);
 	m_leBaseAttack = new BoyLineEdit("BaseAttack", this);
 	m_leBaseBlood = new BoyLineEdit("BaseBlood", this);
 
 	m_leGoldRate = new BoyLineEdit("GoldRate", this);
+	m_leMouseGoldRate = new BoyLineEdit("MouseGoldRate", this);
 	m_leAttackRate = new BoyLineEdit("AttackRate", this);
 	m_leBloodRate = new BoyLineEdit("BloodRate", this);
 
@@ -133,8 +135,8 @@ PropertyWidget::PropertyWidget(QWidget *parent)
 	m_leNormalMCountOneTime = new BoyLineEdit("NormalMCountOneTime", this);
 
 
-	m_leGifGold = new BoyLineEdit("GifGold", this);
-	m_leBossGold = new BoyLineEdit("BossGold", this);
+	m_leTotalGold = new BoyLineEdit("TotalGold", this);
+	m_leGoldDistributeRate = new BoyLineEdit("GoldDistributeRate", this);
 	
 	m_leDifficultyRate = new BoyLineEdit("DifficultyRate", this);
 
@@ -158,14 +160,16 @@ PropertyWidget::PropertyWidget(QWidget *parent)
 	vlayout->addWidget(m_leBaseAttack);
 	vlayout->addWidget(m_leBaseBlood);
 	vlayout->addWidget(m_leBaseGold);
+	vlayout->addWidget(m_leBaseMouseGold);
 
 	vlayout->addWidget(m_leGoldRate);
+	vlayout->addWidget(m_leMouseGoldRate);
 	vlayout->addWidget(m_leAttackRate);
 	vlayout->addWidget(m_leBloodRate);
 
 	vlayout->addWidget(m_leNormalMCountOneTime);
-	vlayout->addWidget(m_leGifGold);
-	vlayout->addWidget(m_leBossGold);
+	vlayout->addWidget(m_leTotalGold);
+	vlayout->addWidget(m_leGoldDistributeRate);
 	vlayout->addWidget(m_leDifficultyRate);
 
 	vlayout->addWidget(m_leSellBlood);
@@ -191,6 +195,7 @@ QString PropertyWidget::getInfo()
 	int totalAttackCount = 0;
 	int totalAttack = 0;
 	int totalGold = 0;
+	int totalMouseGold = 0;
 	int totalBlood = 0;
 	int totalMouseCount = 0;
 	QString totalInfo("------------------------------------------------------\n");
@@ -216,12 +221,15 @@ QString PropertyWidget::getInfo()
 		//int preAttack = (m_leBaseAttack->getFloat(i) + m_leBaseAttack->getFloat(i) * level * m_leAttackRate->getFloat(i));
 		int attack = attackCount * preAttack;
 		int preGold = nextValue(level, m_leGoldRate->getFloat(i), m_leBaseGold->getInt(i));
+		//int preMouseGold = nextValue(level, m_leMouseGoldRate->getFloat(i), m_leBaseMouseGold->getInt(i));
+		int preMouseGold =  level * m_leMouseGoldRate->getFloat(i) * m_leBaseMouseGold->getInt(i) + m_leBaseMouseGold->getInt();
 		//int preGold = (m_leBaseGold->getFloat(i) + m_leBaseGold->getFloat(i) * level * m_leGoldRate->getFloat(i));
 		int gold = mouseCount * preGold;
+		int mouseGold = mouseCount * preMouseGold;
 		int preBlood = nextValue(level, m_leBloodRate->getFloat(i), m_leBaseBlood->getInt(i));
 		//int preBlood = (m_leBaseBlood->getFloat(i) + m_leBaseBlood->getFloat(i) * level * m_leBloodRate->getFloat(i));
 		int blood = mouseCount * preBlood;
-		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n MouseCount:%6 AttackCount:%7  TotalAttack:%8 TotalBlood:%9 TotalGold:%10 \n")
+		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n MouseCount:%6 AttackCount:%7  TotalAttack:%8 TotalBlood:%9 TotalGold:%10 RealMousePreGold:%11 RealMouseTotalGold:%12\n")
 			.arg(level + 1)
 			.arg(time)
 			.arg(preAttack)
@@ -232,6 +240,8 @@ QString PropertyWidget::getInfo()
 			.arg(attack)
 			.arg(blood)
 			.arg(gold)
+			.arg(preMouseGold)
+			.arg(mouseGold)
 			;
 
 		totalInfo += baseInfo;
@@ -240,6 +250,7 @@ QString PropertyWidget::getInfo()
 		totalAttackCount += attackCount;
 		totalAttack += attack;
 		totalGold += gold;
+		totalMouseGold += mouseGold;
 		totalBlood += blood;
 		totalMouseCount += mouseCount;
 
@@ -255,16 +266,60 @@ QString PropertyWidget::getInfo()
 	QString enterString("---------\n");
 	totalInfo += enterString;
 
-	totalInfo += QString("AllLevel: TotalTime:%1 TotalMouseCount:%2 AttackTimes:%3  TotalAttack:%4 TotalGold:%5 TotalBlood:%6 \n GiftGold:%7 BossGold:%8 \n")
+	totalInfo += QString("AllLevel: TotalTime:%1 TotalMouseCount:%2 AttackTimes:%3  TotalAttack:%4 TotalGold:%5 TotalBlood:%6  TotalMouseGold:%7  \n")
 		.arg(totalTime)
 		.arg(totalMouseCount)
 		.arg(totalAttackCount)
 		.arg(totalAttack)
 		.arg(totalGold)
 		.arg(totalBlood)
-		.arg(m_leGifGold->getInt())
-		.arg(m_leBossGold->getInt())
+		.arg(totalMouseGold)
 		;
+
+	//int totalGoldTemp = totalGold - totalMouseGold;
+	//int greenEgg = totalGoldTemp * 5.0f / 10 * 4.0f / 10 / 2;
+	//int goldEgg = totalGoldTemp * 5.0f / 10 * 6.0f / 10 / 2;
+	//int boss1 = totalGoldTemp * 2.0f / 10;
+	//int boss2 = totalGoldTemp * 3.0f / 10;
+	//totalInfo += QString("TtoalGold:%1 GreenEgg/Bird:%2 GoldEgg/Bird:%3 Boss1:%4 Boss2:%5 \n")
+	//	.arg(totalGoldTemp)
+	//	.arg(greenEgg)
+	//	.arg(goldEgg)
+	//	.arg(boss1)
+	//	.arg(boss2)
+	//	;
+
+
+	{
+		int totalGold = m_leTotalGold->getInt();
+
+		int mouseGold = m_leGoldDistributeRate->getFloat(0) * totalGold;
+		int greenEggBirdGold = m_leGoldDistributeRate->getFloat(1) * totalGold / 2;
+		int goldEggBirdGold = m_leGoldDistributeRate->getFloat(2) * totalGold / 2;
+		int mineGold = m_leGoldDistributeRate->getFloat(3) * totalGold / 2;
+		int boss1Gold = m_leGoldDistributeRate->getFloat(4) * totalGold;
+		int boss2Gold = m_leGoldDistributeRate->getFloat(5) * totalGold;
+
+		auto loopResult = [](int level){
+			int ret = 0;
+			for (int i = 0; i < level; ++i)
+			{
+				ret += i;
+			}
+			return ret;
+		};
+		float mouseGoldRate = (1.0f * mouseGold / (totalMouseCount / m_leLevelCount->getInt()) - ( m_leLevelCount->getInt() *m_leBaseMouseGold->getInt())) / (loopResult(m_leLevelCount->getInt()-1) * m_leBaseMouseGold->getInt() );
+
+		totalInfo += QString("MousetGold:%1 MouseGoldRate:%2\n GreenEgg/Bird:%3 \n GoldEgg/Bird:%4 \n Mine:%5 \n Boss1:%6 \n Boss2:%7 \n")
+			.arg(mouseGold).arg(mouseGoldRate)
+			.arg(greenEggBirdGold)
+			.arg(goldEggBirdGold)
+			.arg(mineGold)
+			.arg(boss1Gold)
+			.arg(boss2Gold)
+			;
+	}
+
 
 	//totalInfo += enterString;
 
@@ -297,17 +352,19 @@ void PropertyWidget::setData(PropertyData &data)
 	m_leLevelCount->setText(int2String(data.levelCount));
 
 	m_leBaseGold->setText(int2String(data.baseGold));
+	m_leBaseMouseGold->setText(int2String(data.baseMouseGold));
 	m_leBaseAttack->setText(int2String(data.baseAttack));
 	m_leBaseBlood->setText(int2String(data.baseBlood));
 
 	m_leGoldRate->setText(float2String(data.goldRate));
+	m_leMouseGoldRate->setText(float2String(data.mouseGoldRate));
 	m_leAttackRate->setText(float2String(data.attackRate));
 	m_leBloodRate->setText(float2String(data.bloodRate));
 
 	m_leNormalMCountOneTime->setText(data.NormalMCountOneTime);
 	
-	m_leGifGold->setText(int2String(data.giftGold));
-	m_leBossGold->setText(int2String(data.bossGold));
+	m_leTotalGold->setText(int2String(data.totalGold));
+	m_leGoldDistributeRate->setText(data.goldDistributeRate);
 
 	m_leDifficultyRate->setText(float2String(data.DifficultyRate));
 
@@ -325,17 +382,19 @@ PropertyData PropertyWidget::getData()
 	data.levelCount = m_leLevelCount->getInt();
 
 	data.baseGold = m_leBaseGold->getInt();
+	data.baseMouseGold = m_leBaseMouseGold->getInt();
 	data.baseAttack = m_leBaseAttack->getInt();
 	data.baseBlood = m_leBaseBlood->getInt();
 
 	data.goldRate = m_leGoldRate->getFloat();
+	data.mouseGoldRate = m_leMouseGoldRate->getFloat();
 	data.attackRate = m_leAttackRate->getFloat();
 	data.bloodRate = m_leBloodRate->getFloat();
 
 	data.NormalMCountOneTime = m_leNormalMCountOneTime->getText();
 	
-	data.giftGold = m_leGifGold->getInt();
-	data.bossGold = m_leBossGold->getInt();
+	data.totalGold = m_leTotalGold->getInt();
+	data.goldDistributeRate = m_leGoldDistributeRate->getText();
 
 	data.DifficultyRate = m_leDifficultyRate->getFloat();
 
@@ -351,15 +410,17 @@ void PropertyWidget::initData()
 
 	m_leLevelCount->setText("10");
 	m_leBaseGold->setText("100");
+	m_leBaseMouseGold->setText("10");
 	m_leBaseAttack->setText("100");
 	m_leBaseBlood->setText("100");
 	m_leGoldRate->setText("0.4");
+	m_leMouseGoldRate->setText("0.1");
 	m_leAttackRate->setText("0.4");
 	m_leBloodRate->setText("0.4");
 
 	m_leNormalMCountOneTime->setText("4");
-	m_leGifGold->setText("0");
-	m_leBossGold->setText("0");
+	m_leTotalGold->setText("0");
+	m_leGoldDistributeRate->setText("0");
 	m_leDifficultyRate->setText("0.4");
 
 	m_leSellBlood->setText("10000 100");
@@ -524,16 +585,18 @@ PropertyDatas SettingInit::getPropertys()
 		data.levelCount = settings.value("levelCount").toInt();
 
 		data.baseGold = settings.value("baseGold").toInt();
+		data.baseMouseGold = settings.value("baseMouseGold").toInt();
 		data.baseAttack = settings.value("baseAttack").toInt();
 		data.baseBlood = settings.value("baseBlood").toInt();
 
 		data.goldRate = settings.value("goldRate").toFloat();
+		data.mouseGoldRate = settings.value("mouseGoldRate").toFloat();
 		data.attackRate = settings.value("attackRate").toFloat();
 		data.bloodRate = settings.value("bloodRate").toFloat();
 
 		data.NormalMCountOneTime = settings.value("NormalMCountOneTime").toString();
-		data.giftGold = settings.value("giftGold").toInt();
-		data.bossGold = settings.value("bossGold").toInt();
+		data.totalGold = settings.value("totalGold").toInt();
+		data.goldDistributeRate = settings.value("goldDistributeRate").toString();
 		data.DifficultyRate = settings.value("DifficultyRate").toFloat();
 
 		settings.endGroup();
@@ -563,16 +626,18 @@ void SettingInit::savePropertys(PropertyDatas &datas)
 		settings.setValue("levelCount", data.levelCount);
 
 		settings.setValue("baseGold", data.baseGold);
+		settings.setValue("baseMouseGold", data.baseMouseGold);
 		settings.setValue("baseAttack", data.baseAttack);
 		settings.setValue("baseBlood", data.baseBlood);
 
 		settings.setValue("goldRate", data.goldRate);
+		settings.setValue("mouseGoldRate", data.mouseGoldRate);
 		settings.setValue("attackRate", data.attackRate);
 		settings.setValue("bloodRate", data.bloodRate);		
 		
 		settings.setValue("NormalMCountOneTime", data.NormalMCountOneTime);
-		settings.setValue("giftGold", data.giftGold);
-		settings.setValue("bossGold", data.bossGold);
+		settings.setValue("totalGold", data.totalGold);
+		settings.setValue("goldDistributeRate", data.goldDistributeRate);
 		settings.setValue("DifficultyRate", data.DifficultyRate);
 
 		settings.endGroup();
