@@ -15,6 +15,7 @@ Q_SIGNALS:
 	void InfoSignal(QString info);
 	void SaveSignal();
 	void ExportSignal(QString path);
+	void ClearSignal();
 private:
 	MainPropertyWidget *m_propertyWidget;
 	QScrollArea *m_area;
@@ -23,6 +24,7 @@ private:
 	QPushButton *m_btnCalculate;
 	QPushButton *m_btnSave;
 	QPushButton *m_btnExport;
+	QPushButton *m_btnClear;
 };
 
 

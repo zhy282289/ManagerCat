@@ -26,6 +26,9 @@ ManagerCat::ManagerCat(QWidget *parent)
 		file.write(m_display->toPlainText().toLocal8Bit());
 	});
 
+	connect(m_propertyWidget, &MainPropertyWidgetArea::ClearSignal, this, [&](){
+		m_display->clear();
+	});
 
 	m_display = new QTextEdit(this);
 	m_display->setPlainText(SettingInit::getInstance()->getDesc());

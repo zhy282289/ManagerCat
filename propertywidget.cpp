@@ -229,20 +229,44 @@ QString PropertyWidget::getInfo()
 		int preBlood = nextValue(level, m_leBloodRate->getFloat(i), m_leBaseBlood->getInt(i));
 		//int preBlood = (m_leBaseBlood->getFloat(i) + m_leBaseBlood->getFloat(i) * level * m_leBloodRate->getFloat(i));
 		int blood = mouseCount * preBlood;
-		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n MouseCount:%6 AttackCount:%7  TotalAttack:%8 TotalBlood:%9 TotalGold:%10 RealMousePreGold:%11 RealMouseTotalGold:%12\n")
+		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n RealMousePreGold:%6 RealMouseTotalGold:%7\n")
 			.arg(level + 1)
 			.arg(time)
 			.arg(preAttack)
 			.arg(preBlood)
 			.arg(preGold)
-			.arg(mouseCount)
-			.arg(attackCount)
-			.arg(attack)
-			.arg(blood)
-			.arg(gold)
 			.arg(preMouseGold)
 			.arg(mouseGold)
 			;
+
+		//QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n  MouseCount:%6 TotalAttack:%7 TotalBlood:%8 TotalGold:%9 \n RealMousePreGold:%10 RealMouseTotalGold:%11\n")
+		//	.arg(level + 1)
+		//	.arg(time)
+		//	.arg(preAttack)
+		//	.arg(preBlood)
+		//	.arg(preGold)
+		//	.arg(mouseCount)
+		//	.arg(attack)
+		//	.arg(blood)
+		//	.arg(gold)
+		//	.arg(preMouseGold)
+		//	.arg(mouseGold)
+		//	;
+
+		//QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n MouseCount:%6 AttackCount:%7  TotalAttack:%8 TotalBlood:%9 TotalGold:%10 \n RealMousePreGold:%11 RealMouseTotalGold:%12\n")
+		//	.arg(level + 1)
+		//	.arg(time)
+		//	.arg(preAttack)
+		//	.arg(preBlood)
+		//	.arg(preGold)
+		//	.arg(mouseCount)
+		//	.arg(attackCount)
+		//	.arg(attack)
+		//	.arg(blood)
+		//	.arg(gold)
+		//	.arg(preMouseGold)
+		//	.arg(mouseGold)
+		//	;
 
 		totalInfo += baseInfo;
 		
@@ -254,10 +278,11 @@ QString PropertyWidget::getInfo()
 		totalBlood += blood;
 		totalMouseCount += mouseCount;
 
-		QString catInfo = QString("cat total gold:%1 can get Blood:%2 get Attack:%3 \n")
-			.arg(totalGold)
-			.arg(totalGold / 2 / m_leSellBlood->getInt(0) * m_leSellBlood->getInt(1))
-			.arg(totalGold / 2 / m_leSellAttack->getInt(0) * m_leSellAttack->getInt(1))
+
+		QString catInfo = QString("Cat total gold:%1 can get Blood:%2 get Attack:%3 \n")
+			.arg(totalMouseGold)
+			.arg(totalMouseGold / 2 / m_leSellBlood->getInt(0) * m_leSellBlood->getInt(1))
+			.arg(totalMouseGold / 2 / m_leSellAttack->getInt(0) * m_leSellAttack->getInt(1))
 			;
 
 		totalInfo += catInfo;
@@ -266,15 +291,15 @@ QString PropertyWidget::getInfo()
 	QString enterString("---------\n");
 	totalInfo += enterString;
 
-	totalInfo += QString("AllLevel: TotalTime:%1 TotalMouseCount:%2 AttackTimes:%3  TotalAttack:%4 TotalGold:%5 TotalBlood:%6  TotalMouseGold:%7  \n")
-		.arg(totalTime)
-		.arg(totalMouseCount)
-		.arg(totalAttackCount)
-		.arg(totalAttack)
-		.arg(totalGold)
-		.arg(totalBlood)
-		.arg(totalMouseGold)
-		;
+	//totalInfo += QString("AllLevel: TotalTime:%1 \n TotalMouseCount:%2 AttackTimes:%3  TotalAttack:%4 TotalGold:%5 TotalBlood:%6  TotalMouseGold:%7  \n")
+	//	.arg(totalTime)
+	//	.arg(totalMouseCount)
+	//	.arg(totalAttackCount)
+	//	.arg(totalAttack)
+	//	.arg(totalGold)
+	//	.arg(totalBlood)
+	//	.arg(totalMouseGold)
+	//	;
 
 	//int totalGoldTemp = totalGold - totalMouseGold;
 	//int greenEgg = totalGoldTemp * 5.0f / 10 * 4.0f / 10 / 2;
@@ -310,13 +335,14 @@ QString PropertyWidget::getInfo()
 		};
 		float mouseGoldRate = (1.0f * mouseGold / (totalMouseCount / m_leLevelCount->getInt()) - ( m_leLevelCount->getInt() *m_leBaseMouseGold->getInt())) / (loopResult(m_leLevelCount->getInt()-1) * m_leBaseMouseGold->getInt() );
 
-		totalInfo += QString("MousetGold:%1 MouseGoldRate:%2\n GreenEgg/Bird:%3 \n GoldEgg/Bird:%4 \n Mine:%5 \n Boss1:%6 \n Boss2:%7 \n")
+		totalInfo += QString("TotalGold:%8 \n MousetGold:%1 MouseGoldRate:%2\n GreenEgg/Bird:%3 \n GoldEgg/Bird:%4 \n Mine:%5 \n Boss1:%6 \n Boss2:%7 \n")
 			.arg(mouseGold).arg(mouseGoldRate)
 			.arg(greenEggBirdGold)
 			.arg(goldEggBirdGold)
 			.arg(mineGold)
 			.arg(boss1Gold)
 			.arg(boss2Gold)
+			.arg(m_leTotalGold->getInt())
 			;
 	}
 
@@ -686,6 +712,10 @@ MainPropertyWidgetArea::MainPropertyWidgetArea(QWidget *parent)
 		m_propertyWidget->exportFile();
 	});
 
+	m_btnClear = new QPushButton(("Clear"), this);
+	connect(m_btnClear, &QPushButton::clicked, this, [&](){
+		emit ClearSignal();
+	});
 
 	m_propertyWidget = new MainPropertyWidget(this);
 	connect(m_propertyWidget, &MainPropertyWidget::InfoSignal, this, &MainPropertyWidgetArea::InfoSignal);
@@ -701,6 +731,7 @@ MainPropertyWidgetArea::MainPropertyWidgetArea(QWidget *parent)
 	hlayout->addWidget(m_btnCalculate);
 	hlayout->addWidget(m_btnSave);
 	hlayout->addWidget(m_btnExport);
+	hlayout->addWidget(m_btnClear);
 	hlayout->addStretch();
 
 	QVBoxLayout *vlayout = new QVBoxLayout(this);
