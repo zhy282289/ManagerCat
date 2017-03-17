@@ -61,10 +61,10 @@ class PropertyData
 {
 public:
 	QString desc;
-	int totalTime;
+	QString totalTime;
 	float mLiveTime;
 	float mStandupTime;
-	float mAttackRateTime;
+	QString mAttackRateTime;
 
 	int levelCount;
 

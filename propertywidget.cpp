@@ -160,9 +160,11 @@ PropertyWidget::PropertyWidget(QWidget *parent)
 	vlayout->addWidget(m_leBaseAttack);
 	vlayout->addWidget(m_leBaseBlood);
 	vlayout->addWidget(m_leBaseGold);
+	m_leBaseGold->hide();
 	vlayout->addWidget(m_leBaseMouseGold);
 
 	vlayout->addWidget(m_leGoldRate);
+	m_leGoldRate->hide();
 	vlayout->addWidget(m_leMouseGoldRate);
 	vlayout->addWidget(m_leAttackRate);
 	vlayout->addWidget(m_leBloodRate);
@@ -194,7 +196,7 @@ QString PropertyWidget::getInfo()
 	int totalTime = 0;
 	int totalAttackCount = 0;
 	int totalAttack = 0;
-	int totalGold = 0;
+	//int totalGold = 0;
 	int totalMouseGold = 0;
 	int totalBlood = 0;
 	int totalMouseCount = 0;
@@ -209,6 +211,10 @@ QString PropertyWidget::getInfo()
 		return ret;
 	};
 
+	/*
+		给定10关的总金币，得出MouseGold,得出GoldRate进而得到第关MousePreGold, 调节其它参数以符合此关得到的金币购买力
+		AttackRate, BloodRate都是翻倍增， MouseGold是倍增leve*rate
+	*/
 	totalInfo += m_leHead->getText() + "\n";
 	for (int i = 0; i < m_leLevelCount->getInt(); ++i)
 	{
@@ -220,61 +226,32 @@ QString PropertyWidget::getInfo()
 		int preAttack = nextValue(level, m_leAttackRate->getFloat(i), m_leBaseAttack->getInt(i));
 		//int preAttack = (m_leBaseAttack->getFloat(i) + m_leBaseAttack->getFloat(i) * level * m_leAttackRate->getFloat(i));
 		int attack = attackCount * preAttack;
-		int preGold = nextValue(level, m_leGoldRate->getFloat(i), m_leBaseGold->getInt(i));
+		//int preGold = nextValue(level, m_leGoldRate->getFloat(i), m_leBaseGold->getInt(i));
 		//int preMouseGold = nextValue(level, m_leMouseGoldRate->getFloat(i), m_leBaseMouseGold->getInt(i));
 		int preMouseGold =  level * m_leMouseGoldRate->getFloat(i) * m_leBaseMouseGold->getInt(i) + m_leBaseMouseGold->getInt();
 		//int preGold = (m_leBaseGold->getFloat(i) + m_leBaseGold->getFloat(i) * level * m_leGoldRate->getFloat(i));
-		int gold = mouseCount * preGold;
-		int mouseGold = mouseCount * preMouseGold;
+		//int gold = mouseCount * preGold;
+		int oneLevelMouseGold = mouseCount * preMouseGold;
 		int preBlood = nextValue(level, m_leBloodRate->getFloat(i), m_leBaseBlood->getInt(i));
 		//int preBlood = (m_leBaseBlood->getFloat(i) + m_leBaseBlood->getFloat(i) * level * m_leBloodRate->getFloat(i));
 		int blood = mouseCount * preBlood;
-		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n RealMousePreGold:%6 RealMouseTotalGold:%7\n")
+		QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 MousePreGold:%5 OnLevelTotalGold:%6\n")
 			.arg(level + 1)
 			.arg(time)
 			.arg(preAttack)
 			.arg(preBlood)
-			.arg(preGold)
 			.arg(preMouseGold)
-			.arg(mouseGold)
+			.arg(oneLevelMouseGold)
 			;
 
-		//QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n  MouseCount:%6 TotalAttack:%7 TotalBlood:%8 TotalGold:%9 \n RealMousePreGold:%10 RealMouseTotalGold:%11\n")
-		//	.arg(level + 1)
-		//	.arg(time)
-		//	.arg(preAttack)
-		//	.arg(preBlood)
-		//	.arg(preGold)
-		//	.arg(mouseCount)
-		//	.arg(attack)
-		//	.arg(blood)
-		//	.arg(gold)
-		//	.arg(preMouseGold)
-		//	.arg(mouseGold)
-		//	;
-
-		//QString baseInfo = QString("Level:%1 \n TotalTime:%2 preAttack:%3 preBlood:%4 preGold:%5 \n MouseCount:%6 AttackCount:%7  TotalAttack:%8 TotalBlood:%9 TotalGold:%10 \n RealMousePreGold:%11 RealMouseTotalGold:%12\n")
-		//	.arg(level + 1)
-		//	.arg(time)
-		//	.arg(preAttack)
-		//	.arg(preBlood)
-		//	.arg(preGold)
-		//	.arg(mouseCount)
-		//	.arg(attackCount)
-		//	.arg(attack)
-		//	.arg(blood)
-		//	.arg(gold)
-		//	.arg(preMouseGold)
-		//	.arg(mouseGold)
-		//	;
 
 		totalInfo += baseInfo;
 		
 		totalTime += time;
 		totalAttackCount += attackCount;
 		totalAttack += attack;
-		totalGold += gold;
-		totalMouseGold += mouseGold;
+		//totalGold += gold;
+		totalMouseGold += oneLevelMouseGold;
 		totalBlood += blood;
 		totalMouseCount += mouseCount;
 
@@ -290,31 +267,6 @@ QString PropertyWidget::getInfo()
 	
 	QString enterString("---------\n");
 	totalInfo += enterString;
-
-	//totalInfo += QString("AllLevel: TotalTime:%1 \n TotalMouseCount:%2 AttackTimes:%3  TotalAttack:%4 TotalGold:%5 TotalBlood:%6  TotalMouseGold:%7  \n")
-	//	.arg(totalTime)
-	//	.arg(totalMouseCount)
-	//	.arg(totalAttackCount)
-	//	.arg(totalAttack)
-	//	.arg(totalGold)
-	//	.arg(totalBlood)
-	//	.arg(totalMouseGold)
-	//	;
-
-	//int totalGoldTemp = totalGold - totalMouseGold;
-	//int greenEgg = totalGoldTemp * 5.0f / 10 * 4.0f / 10 / 2;
-	//int goldEgg = totalGoldTemp * 5.0f / 10 * 6.0f / 10 / 2;
-	//int boss1 = totalGoldTemp * 2.0f / 10;
-	//int boss2 = totalGoldTemp * 3.0f / 10;
-	//totalInfo += QString("TtoalGold:%1 GreenEgg/Bird:%2 GoldEgg/Bird:%3 Boss1:%4 Boss2:%5 \n")
-	//	.arg(totalGoldTemp)
-	//	.arg(greenEgg)
-	//	.arg(goldEgg)
-	//	.arg(boss1)
-	//	.arg(boss2)
-	//	;
-
-
 	{
 		int totalGold = m_leTotalGold->getInt();
 
@@ -335,7 +287,7 @@ QString PropertyWidget::getInfo()
 		};
 		float mouseGoldRate = (1.0f * mouseGold / (totalMouseCount / m_leLevelCount->getInt()) - ( m_leLevelCount->getInt() *m_leBaseMouseGold->getInt())) / (loopResult(m_leLevelCount->getInt()-1) * m_leBaseMouseGold->getInt() );
 
-		totalInfo += QString("TotalGold:%8 \n MousetGold:%1 MouseGoldRate:%2\n GreenEgg/Bird:%3 \n GoldEgg/Bird:%4 \n Mine:%5 \n Boss1:%6 \n Boss2:%7 \n")
+		totalInfo += QString(" TotalGold:%8 \n MousetGold:%1 MouseGoldRate:%2\n GreenEgg/Bird:%3 \n GoldEgg/Bird:%4 \n Mine:%5 \n Boss1:%6 \n Boss2:%7 \n")
 			.arg(mouseGold).arg(mouseGoldRate)
 			.arg(greenEggBirdGold)
 			.arg(goldEggBirdGold)
@@ -345,20 +297,6 @@ QString PropertyWidget::getInfo()
 			.arg(m_leTotalGold->getInt())
 			;
 	}
-
-
-	//totalInfo += enterString;
-
-	//float difficultyRate = m_leDifficultyRate->getFloat();
-	//totalInfo += QString("After Difficult:%6 => TotalTime:%1 AttackTimes:%2  TotalAttack:%3 TotalGold:%4 TotalBlood:%5 \n")
-	//	.arg(totalTime)
-	//	.arg(totalAttackCount)
-	//	.arg(totalAttack * difficultyRate)
-	//	.arg(totalGold)
-	//	.arg(totalBlood)
-	//	.arg(difficultyRate)
-	//	;
-
 	return totalInfo;
 }
 
@@ -370,10 +308,10 @@ void PropertyWidget::setData(PropertyData &data)
 	auto int2String = [](int v){return QString::number(v); };
 	auto float2String = [](float v){return QString("%1").arg(v, 0, 'f', 1); };
 	m_leHead->setText(data.desc);
-	m_leTotalTime->setText(int2String(data.totalTime));
+	m_leTotalTime->setText((data.totalTime));
 	m_leMLiveTime->setText(float2String(data.mLiveTime));
 	m_leMStandupTime->setText(float2String(data.mStandupTime));
-	m_leMAttackRateTime->setText(float2String(data.mAttackRateTime));
+	m_leMAttackRateTime->setText((data.mAttackRateTime));
 
 	m_leLevelCount->setText(int2String(data.levelCount));
 
@@ -401,10 +339,10 @@ PropertyData PropertyWidget::getData()
 	PropertyData data;
 	data.desc = m_leHead->getText();
 
-	data.totalTime = m_leTotalTime->getInt();
+	data.totalTime = m_leTotalTime->getText();
 	data.mLiveTime = m_leMLiveTime->getFloat();
 	data.mStandupTime = m_leMStandupTime->getFloat();
-	data.mAttackRateTime = m_leMAttackRateTime->getFloat();
+	data.mAttackRateTime = m_leMAttackRateTime->getText();
 	data.levelCount = m_leLevelCount->getInt();
 
 	data.baseGold = m_leBaseGold->getInt();
@@ -604,10 +542,10 @@ PropertyDatas SettingInit::getPropertys()
 		settings.beginGroup(temp);
 		PropertyData data;
 		data.desc = settings.value("desc").toString();
-		data.totalTime = settings.value("totalTime").toInt();
+		data.totalTime = settings.value("totalTime").toString();
 		data.mLiveTime = settings.value("mLiveTime").toFloat();
 		data.mStandupTime = settings.value("mStandupTime").toFloat();
-		data.mAttackRateTime = settings.value("mAttackRateTime").toFloat();
+		data.mAttackRateTime = settings.value("mAttackRateTime").toString();
 		data.levelCount = settings.value("levelCount").toInt();
 
 		data.baseGold = settings.value("baseGold").toInt();
